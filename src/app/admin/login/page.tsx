@@ -69,8 +69,8 @@ function AdminLoginInner() {
           <CasaLogo size={64} glow className="mb-2 mx-auto" />
           <div className="flex items-center justify-center gap-2 mb-2">
             <Coffee className="w-6 h-6 text-crema" />
-            <span className="font-brand-title text-2xl font-bold tracking-[0.25em] text-crema">
-              CASA DE LATTE
+            <span className="font-brand-title text-2xl font-bold tracking-[0.12em] text-crema">
+              Casa De Latte
             </span>
           </div>
           <div className="flex items-center justify-center gap-1.5 mt-1">

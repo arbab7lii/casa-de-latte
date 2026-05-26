@@ -1,8 +1,23 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import type { MenuItem } from "@/types/menu";
 import dynamic from "next/dynamic";
+import {
+  formatMilkSurcharge,
+  milkSurchargeForChoice,
+  MILK_OPTIONS,
+  resolveMilkPrices,
+  type MilkOptionLabel,
+} from "@/lib/milkPricing";
+import {
+  formatSyrupSurcharge,
+  resolveSyrupPrices,
+  SYRUP_OPTIONS,
+  syrupPriceForId,
+  syrupSurchargeTotal,
+  type SyrupOptionLabel,
+} from "@/lib/syrupPricing";
 
 const CategoryItemAnimation = dynamic(() => import("./CategoryItemAnimation"), {
   ssr: false,
@@ -33,7 +48,8 @@ export default function ItemDetailModal({
   onAddToCart,
 }: ItemDetailModalProps) {
   const [quantity, setQuantity] = useState(1);
-  const [milk, setMilk] = useState("Whole Milk");
+  const [milk, setMilk] = useState<MilkOptionLabel | null>(null);
+  const [selectedSyrups, setSelectedSyrups] = useState<SyrupOptionLabel[]>([]);
   const [roastProfile, setRoastProfile] = useState<"Medium" | "Dark">("Medium");
   const [temp, setTemp] = useState("Hot");
   const [isAdded, setIsAdded] = useState(false);
@@ -41,7 +57,8 @@ export default function ItemDetailModal({
   useEffect(() => {
     if (item) {
       setQuantity(1);
-      setMilk("Whole Milk");
+      setMilk(null);
+      setSelectedSyrups([]);
       setRoastProfile("Medium");
       setIsAdded(false);
 
@@ -55,15 +72,44 @@ export default function ItemDetailModal({
     }
   }, [item]);
 
-  if (!item) return null;
+  const milkPrices = useMemo(
+    () => (item ? resolveMilkPrices(item) : null),
+    [item]
+  );
 
-  const getMilkExtra = () => {
-    if (!item.requiresMilkCustomization) return 0;
-    if (milk === "Almond Milk") return 35;
-    return 0;
+  const milkOptions = useMemo(() => {
+    if (!milkPrices) return [];
+    return MILK_OPTIONS.map((opt) => ({
+      name: opt.label,
+      surcharge:
+        opt.id === "whole" ? milkPrices.whole : milkPrices.almond,
+    }));
+  }, [milkPrices]);
+
+  const syrupPrices = useMemo(
+    () => (item ? resolveSyrupPrices(item) : null),
+    [item]
+  );
+
+  const syrupOptions = useMemo(() => {
+    if (!syrupPrices) return [];
+    return SYRUP_OPTIONS.map((opt) => ({
+      name: opt.label,
+      surcharge: syrupPriceForId(opt.id, syrupPrices),
+    }));
+  }, [syrupPrices]);
+
+  const toggleSyrup = (label: SyrupOptionLabel) => {
+    setSelectedSyrups((prev) =>
+      prev.includes(label) ? prev.filter((s) => s !== label) : [...prev, label]
+    );
   };
 
-  const extraPrice = getMilkExtra();
+  if (!item) return null;
+
+  const milkExtra = milkSurchargeForChoice(milk, milkPrices);
+  const syrupExtra = syrupSurchargeTotal(selectedSyrups, syrupPrices);
+  const extraPrice = milkExtra + syrupExtra;
   const unitPrice = item.price + extraPrice;
   const totalPrice = unitPrice * quantity;
 
@@ -72,8 +118,11 @@ export default function ItemDetailModal({
     if (item.isHotAvailable && item.isColdAvailable) {
       parts.push(temp);
     }
-    if (item.requiresMilkCustomization) {
+    if (milk) {
       parts.push(milk);
+    }
+    if (selectedSyrups.length > 0) {
+      parts.push(...selectedSyrups);
     }
     if (item.requiresRoastProfile) {
       parts.push(`${roastProfile} Roast`);
@@ -124,7 +173,14 @@ export default function ItemDetailModal({
               liquidColor={getLiquidColor(item.name, item.category)}
             />
             <div className="mt-4 text-center">
-              <span className="text-crema-light font-medium tracking-wide">₹{item.price}</span>
+              <span className="text-crema-light font-medium tracking-wide">
+                ₹{unitPrice}
+                {extraPrice > 0 && (
+                  <span className="text-[10px] text-warm-beige/50 block mt-0.5">
+                    base ₹{item.price} +₹{extraPrice} add-ons
+                  </span>
+                )}
+              </span>
             </div>
           </div>
 
@@ -181,19 +237,20 @@ export default function ItemDetailModal({
                 </div>
               )}
 
-              {item.requiresMilkCustomization && (
+              {item.requiresMilkCustomization && milkOptions.length > 0 && (
                 <div className="mb-4">
-                  <h4 className="text-[10px] uppercase tracking-widest text-crema font-bold mb-2">
-                    Milk Option
-                  </h4>
+                  <div className="flex items-baseline justify-between gap-2 mb-2">
+                    <h4 className="text-[10px] uppercase tracking-widest text-crema font-bold">
+                      Milk Option
+                    </h4>
+                    <span className="text-[9px] text-warm-beige/45 italic">Optional</span>
+                  </div>
                   <div className="grid grid-cols-2 gap-2">
-                    {[
-                      { name: "Whole Milk", price: "+₹0" },
-                      { name: "Almond Milk", price: "+₹35" },
-                    ].map((m) => (
+                    {milkOptions.map((m) => (
                       <button
                         key={m.name}
-                        onClick={() => setMilk(m.name)}
+                        type="button"
+                        onClick={() => setMilk(milk === m.name ? null : m.name)}
                         className={`py-2 text-[10px] flex flex-col items-center justify-center rounded-xl border font-bold transition-all duration-300 ${
                           milk === m.name
                             ? "bg-crema border-crema text-matte-black shadow-md shadow-crema/20"
@@ -201,7 +258,39 @@ export default function ItemDetailModal({
                         }`}
                       >
                         <span>{m.name}</span>
-                        <span className="opacity-70 font-normal">{m.price}</span>
+                        <span className="opacity-70 font-normal">
+                          {formatMilkSurcharge(m.surcharge)}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {item.requiresSyrupOptions && syrupOptions.length > 0 && (
+                <div className="mb-4">
+                  <div className="flex items-baseline justify-between gap-2 mb-2">
+                    <h4 className="text-[10px] uppercase tracking-widest text-crema font-bold">
+                      Syrup Add-ons
+                    </h4>
+                    <span className="text-[9px] text-warm-beige/45 italic">Optional</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    {syrupOptions.map((s) => (
+                      <button
+                        key={s.name}
+                        type="button"
+                        onClick={() => toggleSyrup(s.name)}
+                        className={`py-2 text-[10px] flex flex-col items-center justify-center rounded-xl border font-bold transition-all duration-300 ${
+                          selectedSyrups.includes(s.name)
+                            ? "bg-crema border-crema text-matte-black shadow-md shadow-crema/20"
+                            : "bg-white/5 border-white/10 text-warm-beige hover:border-crema/40"
+                        }`}
+                      >
+                        <span className="text-center leading-tight px-1">{s.name}</span>
+                        <span className="opacity-70 font-normal">
+                          {formatSyrupSurcharge(s.surcharge)}
+                        </span>
                       </button>
                     ))}
                   </div>

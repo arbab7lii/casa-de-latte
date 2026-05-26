@@ -25,6 +25,18 @@ export async function PATCH(
     if (body.requiresMilkCustomization != null) {
       patch.requires_milk_customization = Boolean(body.requiresMilkCustomization);
     }
+    if (body.milkWholePrice != null) patch.milk_whole_price = Number(body.milkWholePrice) || 0;
+    if (body.milkAlmondPrice != null) patch.milk_almond_price = Number(body.milkAlmondPrice) || 0;
+    if (body.requiresSyrupOptions != null) {
+      patch.requires_syrup_options = Boolean(body.requiresSyrupOptions);
+    }
+    if (body.syrupVanillaPrice != null) patch.syrup_vanilla_price = Number(body.syrupVanillaPrice) || 0;
+    if (body.syrupHazelnutPrice != null) patch.syrup_hazelnut_price = Number(body.syrupHazelnutPrice) || 0;
+    if (body.syrupChocolatePrice != null) patch.syrup_chocolate_price = Number(body.syrupChocolatePrice) || 0;
+    if (body.syrupCaramelPrice != null) patch.syrup_caramel_price = Number(body.syrupCaramelPrice) || 0;
+    if (body.syrupExtraEspressoPrice != null) {
+      patch.syrup_extra_espresso_price = Number(body.syrupExtraEspressoPrice) || 0;
+    }
     if (body.requiresRoastProfile != null) {
       patch.requires_roast_profile = Boolean(body.requiresRoastProfile);
     }

@@ -102,6 +102,23 @@ function CustomerPortal() {
         isHotAvailable: i.is_hot_available,
         isColdAvailable: i.is_cold_available,
         requiresMilkCustomization: i.requires_milk_customization,
+        milkWholePrice:
+          i.milk_whole_price != null ? Number(i.milk_whole_price) : undefined,
+        milkAlmondPrice:
+          i.milk_almond_price != null ? Number(i.milk_almond_price) : undefined,
+        requiresSyrupOptions: i.requires_syrup_options,
+        syrupVanillaPrice:
+          i.syrup_vanilla_price != null ? Number(i.syrup_vanilla_price) : undefined,
+        syrupHazelnutPrice:
+          i.syrup_hazelnut_price != null ? Number(i.syrup_hazelnut_price) : undefined,
+        syrupChocolatePrice:
+          i.syrup_chocolate_price != null ? Number(i.syrup_chocolate_price) : undefined,
+        syrupCaramelPrice:
+          i.syrup_caramel_price != null ? Number(i.syrup_caramel_price) : undefined,
+        syrupExtraEspressoPrice:
+          i.syrup_extra_espresso_price != null
+            ? Number(i.syrup_extra_espresso_price)
+            : undefined,
         requiresRoastProfile: i.requires_roast_profile,
         isAvailable: i.is_available,
       }));
@@ -251,8 +268,8 @@ function CustomerPortal() {
             <div className="flex items-center gap-2.5 min-w-0">
               <CasaLogo size={40} glow sizeClassName="w-10 h-10 shrink-0" />
               <div className="flex flex-col min-w-0 justify-center">
-                <span className="font-brand-title text-lg font-bold tracking-[0.12em] text-crema leading-normal">
-                  CASA DE LATTE
+                <span className="font-brand-title text-lg font-bold tracking-[0.1em] text-crema leading-normal">
+                  Casa De Latte
                 </span>
                 <span className="text-[10px] tracking-widest text-crema-light/50 font-bold uppercase">
                   Specialty Coffee
@@ -302,7 +319,7 @@ function CustomerPortal() {
             <CasaLogo size={56} glow sizeClassName="hidden md:inline-flex w-14 h-14 shrink-0" />
             <div className="flex flex-col items-start justify-center min-w-0 py-0.5">
               <span className="font-brand-title text-xl md:text-2xl font-bold tracking-[0.14em] md:tracking-[0.18em] text-crema select-none leading-[1.2]">
-                CASA DE LATTE
+                Casa De Latte
               </span>
               <span className="text-[10px] md:text-xs tracking-[0.18em] text-warm-beige/50 font-bold uppercase mt-0.5">
                 Specialty Coffee
@@ -326,6 +343,7 @@ function CustomerPortal() {
               className="mb-4 flex justify-center"
             >
               <CasaLogo
+                src="/images/logo/classic-touch.png"
                 size={160}
                 glow
                 priority
@@ -481,12 +499,8 @@ function CustomerPortal() {
                 <div className="absolute inset-0 bg-gradient-to-b from-crema/5 to-transparent opacity-0 group-hover:opacity-100 rounded-2xl transition duration-500 pointer-events-none" />
 
                 <div>
-                  {/* Category badge & temp tag */}
-                  <div className="flex justify-between items-center mb-3">
-                    <span className="text-[9px] tracking-wider uppercase bg-white/5 text-warm-beige/60 border border-white/10 px-2 py-0.5 rounded-full font-bold">
-                      {item.category.replace("-", " ")}
-                    </span>
-                    <div className="flex items-center gap-1">
+                  {(item.isHotAvailable || item.isColdAvailable) && (
+                    <div className="flex justify-end items-center gap-1 mb-2">
                       {item.isHotAvailable && (
                         <Flame size={10} className="text-orange-400/70" />
                       )}
@@ -494,7 +508,7 @@ function CustomerPortal() {
                         <CupSoda size={10} className="text-sky-400/70" />
                       )}
                     </div>
-                  </div>
+                  )}
 
                   {/* Title & Description */}
                   <h3 className="font-serif text-lg font-bold group-hover:text-crema tracking-wide transition duration-300">
@@ -552,8 +566,8 @@ function CustomerPortal() {
           <div className="flex items-center gap-3">
             <CasaLogo size={40} glow />
             <div className="flex flex-col">
-              <span className="font-brand-title text-lg font-bold tracking-widest text-crema">
-                CASA DE LATTE
+              <span className="font-brand-title text-lg font-bold tracking-[0.1em] text-crema">
+                Casa De Latte
               </span>
               <span className="text-[10px] tracking-[0.2em] text-warm-beige/40 font-bold uppercase mt-0.5">
                 Specialty Coffee

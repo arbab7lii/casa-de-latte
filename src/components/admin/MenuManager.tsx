@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { debounce } from "@/lib/debounce";
+import { SYRUP_OPTIONS } from "@/lib/syrupPricing";
 
 interface DbCategory {
   id: string;
@@ -34,6 +35,14 @@ interface DbItem {
   is_hot_available: boolean;
   is_cold_available: boolean;
   requires_milk_customization: boolean;
+  milk_whole_price?: number;
+  milk_almond_price?: number;
+  requires_syrup_options?: boolean;
+  syrup_vanilla_price?: number;
+  syrup_hazelnut_price?: number;
+  syrup_chocolate_price?: number;
+  syrup_caramel_price?: number;
+  syrup_extra_espresso_price?: number;
   requires_roast_profile: boolean;
   is_available: boolean;
   sort_order: number;
@@ -47,6 +56,14 @@ const emptyForm = {
   isHotAvailable: false,
   isColdAvailable: false,
   requiresMilkCustomization: false,
+  milkWholePrice: "0",
+  milkAlmondPrice: "35",
+  requiresSyrupOptions: false,
+  syrupVanillaPrice: "20",
+  syrupHazelnutPrice: "25",
+  syrupChocolatePrice: "25",
+  syrupCaramelPrice: "25",
+  syrupExtraEspressoPrice: "40",
   requiresRoastProfile: false,
 };
 
@@ -117,6 +134,14 @@ export default function MenuManager() {
       isHotAvailable: item.is_hot_available,
       isColdAvailable: item.is_cold_available,
       requiresMilkCustomization: item.requires_milk_customization,
+      milkWholePrice: String(item.milk_whole_price ?? 0),
+      milkAlmondPrice: String(item.milk_almond_price ?? 35),
+      requiresSyrupOptions: Boolean(item.requires_syrup_options),
+      syrupVanillaPrice: String(item.syrup_vanilla_price ?? 20),
+      syrupHazelnutPrice: String(item.syrup_hazelnut_price ?? 25),
+      syrupChocolatePrice: String(item.syrup_chocolate_price ?? 25),
+      syrupCaramelPrice: String(item.syrup_caramel_price ?? 25),
+      syrupExtraEspressoPrice: String(item.syrup_extra_espresso_price ?? 40),
       requiresRoastProfile: item.requires_roast_profile,
     });
   };
@@ -143,6 +168,14 @@ export default function MenuManager() {
         isHotAvailable: form.isHotAvailable,
         isColdAvailable: form.isColdAvailable,
         requiresMilkCustomization: form.requiresMilkCustomization,
+        milkWholePrice: Number(form.milkWholePrice) || 0,
+        milkAlmondPrice: Number(form.milkAlmondPrice) || 0,
+        requiresSyrupOptions: form.requiresSyrupOptions,
+        syrupVanillaPrice: Number(form.syrupVanillaPrice) || 0,
+        syrupHazelnutPrice: Number(form.syrupHazelnutPrice) || 0,
+        syrupChocolatePrice: Number(form.syrupChocolatePrice) || 0,
+        syrupCaramelPrice: Number(form.syrupCaramelPrice) || 0,
+        syrupExtraEspressoPrice: Number(form.syrupExtraEspressoPrice) || 0,
         requiresRoastProfile: form.requiresRoastProfile,
       };
 
@@ -492,6 +525,7 @@ export default function MenuManager() {
                   ["isHotAvailable", "Hot"],
                   ["isColdAvailable", "Cold"],
                   ["requiresMilkCustomization", "Milk options"],
+                  ["requiresSyrupOptions", "Syrup options"],
                   ["requiresRoastProfile", "Roast Profile"],
                 ] as const
               ).map(([key, label]) => (
@@ -506,6 +540,63 @@ export default function MenuManager() {
                 </label>
               ))}
             </div>
+            {form.requiresMilkCustomization && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 border-t border-white/5">
+                <label className="flex flex-col gap-1.5">
+                  <span className="text-[10px] uppercase tracking-wider text-crema font-bold">
+                    Whole Milk surcharge (₹)
+                  </span>
+                  <input
+                    type="number"
+                    min={0}
+                    step={1}
+                    value={form.milkWholePrice}
+                    onChange={(e) => setForm({ ...form, milkWholePrice: e.target.value })}
+                    className="bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-cream-light focus:border-crema outline-none"
+                  />
+                </label>
+                <label className="flex flex-col gap-1.5">
+                  <span className="text-[10px] uppercase tracking-wider text-crema font-bold">
+                    Almond Milk surcharge (₹)
+                  </span>
+                  <input
+                    type="number"
+                    min={0}
+                    step={1}
+                    value={form.milkAlmondPrice}
+                    onChange={(e) => setForm({ ...form, milkAlmondPrice: e.target.value })}
+                    className="bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-cream-light focus:border-crema outline-none"
+                  />
+                </label>
+              </div>
+            )}
+            {form.requiresSyrupOptions && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 border-t border-white/5">
+                {(
+                  [
+                    ["syrupVanillaPrice", SYRUP_OPTIONS[0].label],
+                    ["syrupHazelnutPrice", SYRUP_OPTIONS[1].label],
+                    ["syrupChocolatePrice", SYRUP_OPTIONS[2].label],
+                    ["syrupCaramelPrice", SYRUP_OPTIONS[3].label],
+                    ["syrupExtraEspressoPrice", SYRUP_OPTIONS[4].label],
+                  ] as const
+                ).map(([key, label]) => (
+                  <label key={key} className="flex flex-col gap-1.5">
+                    <span className="text-[10px] uppercase tracking-wider text-crema font-bold">
+                      {label} (₹)
+                    </span>
+                    <input
+                      type="number"
+                      min={0}
+                      step={1}
+                      value={form[key]}
+                      onChange={(e) => setForm({ ...form, [key]: e.target.value })}
+                      className="bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-cream-light focus:border-crema outline-none"
+                    />
+                  </label>
+                ))}
+              </div>
+            )}
             <button
               onClick={saveItem}
               disabled={saving}

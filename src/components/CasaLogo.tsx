@@ -7,6 +7,8 @@ import { LOGO_PATH } from "@/lib/menuAnimation";
 interface CasaLogoProps {
   /** Intrinsic size for Next/Image (use with sizeClassName for responsive display). */
   size?: number;
+  /** Override image path (e.g. hero classic-touch logo). */
+  src?: string;
   /** Tailwind classes on wrapper, e.g. w-[72px] h-[72px] md:w-24 md:h-24 */
   sizeClassName?: string;
   className?: string;
@@ -16,6 +18,7 @@ interface CasaLogoProps {
 
 export default function CasaLogo({
   size = 48,
+  src,
   sizeClassName,
   className = "",
   glow = false,
@@ -37,7 +40,7 @@ export default function CasaLogo({
         />
       )}
       <Image
-        src={LOGO_PATH}
+        src={src ?? LOGO_PATH}
         alt="Casa De Latte"
         width={size}
         height={size}

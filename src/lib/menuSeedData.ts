@@ -21,6 +21,14 @@ export interface SeedItem {
   isHotAvailable?: boolean;
   isColdAvailable?: boolean;
   requiresMilkCustomization?: boolean;
+  milkWholePrice?: number;
+  milkAlmondPrice?: number;
+  requiresSyrupOptions?: boolean;
+  syrupVanillaPrice?: number;
+  syrupHazelnutPrice?: number;
+  syrupChocolatePrice?: number;
+  syrupCaramelPrice?: number;
+  syrupExtraEspressoPrice?: number;
   sortOrder: number;
 }
 

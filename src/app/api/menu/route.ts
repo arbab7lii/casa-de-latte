@@ -21,7 +21,13 @@ export async function GET(request: Request) {
       supabase = await createSupabaseServerClient();
     }
 
+    const syrupFields =
+      "requires_syrup_options,syrup_vanilla_price,syrup_hazelnut_price,syrup_chocolate_price,syrup_caramel_price,syrup_extra_espresso_price";
     const itemFieldsFull =
+      `id,category_id,name,price,description,ingredients,is_hot_available,is_cold_available,requires_milk_customization,milk_whole_price,milk_almond_price,${syrupFields},requires_roast_profile,is_available,sort_order`;
+    const itemFieldsNoSyrup =
+      "id,category_id,name,price,description,ingredients,is_hot_available,is_cold_available,requires_milk_customization,milk_whole_price,milk_almond_price,requires_roast_profile,is_available,sort_order";
+    const itemFieldsNoMilk =
       "id,category_id,name,price,description,ingredients,is_hot_available,is_cold_available,requires_milk_customization,requires_roast_profile,is_available,sort_order";
     const itemFieldsBase =
       "id,category_id,name,price,description,ingredients,is_hot_available,is_cold_available,requires_milk_customization,is_available,sort_order";
@@ -44,6 +50,16 @@ export async function GET(request: Request) {
 
     let items = itemsResult.data;
     let itemErr = itemsResult.error;
+    if (itemErr?.message?.match(/requires_syrup_options|syrup_|column/i)) {
+      const fallback = await loadItems(itemFieldsNoSyrup);
+      items = fallback.data;
+      itemErr = fallback.error;
+    }
+    if (itemErr?.message?.match(/milk_whole_price|milk_almond_price|column/i)) {
+      const fallback = await loadItems(itemFieldsNoMilk);
+      items = fallback.data;
+      itemErr = fallback.error;
+    }
     if (itemErr?.message?.includes("requires_roast_profile")) {
       const fallback = await loadItems(itemFieldsBase);
       items = fallback.data;

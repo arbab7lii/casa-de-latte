@@ -11,6 +11,10 @@ export default function FooterCredit() {
         <span className="text-crema/45 hover:text-crema/70 transition-colors duration-500">
           Arbab Ansar Ali
         </span>
+        {" & "}
+        <span className="text-crema/45 hover:text-crema/70 transition-colors duration-500">
+          Mustafa Wasif Hussain
+        </span>
       </p>
     </div>
   );

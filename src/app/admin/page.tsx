@@ -350,8 +350,8 @@ export default function AdminDashboard() {
               <CasaLogo size={48} glow />
               <div>
                 <motion.div className="flex items-center gap-2">
-                  <span className="font-brand-title text-3xl font-bold tracking-widest text-crema">
-                    CASA DE LATTE
+                  <span className="font-brand-title text-3xl font-bold tracking-[0.12em] text-crema">
+                    Casa De Latte
                   </span>
                   <span className="bg-crema/10 text-crema text-[10px] px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider border border-crema/20">
                     Staff Panel

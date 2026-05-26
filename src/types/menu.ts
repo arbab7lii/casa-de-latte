@@ -8,6 +8,16 @@ export interface MenuItem {
   isHotAvailable?: boolean;
   isColdAvailable?: boolean;
   requiresMilkCustomization?: boolean;
+  /** INR surcharge when Whole Milk is selected (menu item must enable milk options). */
+  milkWholePrice?: number;
+  /** INR surcharge when Almond Milk is selected. */
+  milkAlmondPrice?: number;
+  requiresSyrupOptions?: boolean;
+  syrupVanillaPrice?: number;
+  syrupHazelnutPrice?: number;
+  syrupChocolatePrice?: number;
+  syrupCaramelPrice?: number;
+  syrupExtraEspressoPrice?: number;
   requiresRoastProfile?: boolean;
   isAvailable?: boolean;
 }

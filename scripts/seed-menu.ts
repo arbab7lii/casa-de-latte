@@ -60,6 +60,16 @@ async function main() {
     is_hot_available: Boolean(i.isHotAvailable),
     is_cold_available: Boolean(i.isColdAvailable),
     requires_milk_customization: Boolean(i.requiresMilkCustomization),
+    milk_whole_price: i.requiresMilkCustomization ? (i.milkWholePrice ?? 0) : 0,
+    milk_almond_price: i.requiresMilkCustomization ? (i.milkAlmondPrice ?? 35) : 35,
+    requires_syrup_options: Boolean(i.requiresSyrupOptions),
+    syrup_vanilla_price: i.requiresSyrupOptions ? (i.syrupVanillaPrice ?? 20) : 20,
+    syrup_hazelnut_price: i.requiresSyrupOptions ? (i.syrupHazelnutPrice ?? 25) : 25,
+    syrup_chocolate_price: i.requiresSyrupOptions ? (i.syrupChocolatePrice ?? 25) : 25,
+    syrup_caramel_price: i.requiresSyrupOptions ? (i.syrupCaramelPrice ?? 25) : 25,
+    syrup_extra_espresso_price: i.requiresSyrupOptions
+      ? (i.syrupExtraEspressoPrice ?? 40)
+      : 40,
     is_available: true,
     sort_order: i.sortOrder,
   }));
