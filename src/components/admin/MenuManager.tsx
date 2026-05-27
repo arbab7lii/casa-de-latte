@@ -43,6 +43,11 @@ interface DbItem {
   syrup_chocolate_price?: number;
   syrup_caramel_price?: number;
   syrup_extra_espresso_price?: number;
+  syrup_vanilla_visible?: boolean;
+  syrup_hazelnut_visible?: boolean;
+  syrup_chocolate_visible?: boolean;
+  syrup_caramel_visible?: boolean;
+  syrup_extra_espresso_visible?: boolean;
   requires_roast_profile: boolean;
   is_available: boolean;
   sort_order: number;
@@ -64,6 +69,11 @@ const emptyForm = {
   syrupChocolatePrice: "25",
   syrupCaramelPrice: "25",
   syrupExtraEspressoPrice: "40",
+  syrupVanillaVisible: true,
+  syrupHazelnutVisible: true,
+  syrupChocolateVisible: true,
+  syrupCaramelVisible: true,
+  syrupExtraEspressoVisible: true,
   requiresRoastProfile: false,
 };
 
@@ -142,6 +152,11 @@ export default function MenuManager() {
       syrupChocolatePrice: String(item.syrup_chocolate_price ?? 25),
       syrupCaramelPrice: String(item.syrup_caramel_price ?? 25),
       syrupExtraEspressoPrice: String(item.syrup_extra_espresso_price ?? 40),
+      syrupVanillaVisible: item.syrup_vanilla_visible !== false,
+      syrupHazelnutVisible: item.syrup_hazelnut_visible !== false,
+      syrupChocolateVisible: item.syrup_chocolate_visible !== false,
+      syrupCaramelVisible: item.syrup_caramel_visible !== false,
+      syrupExtraEspressoVisible: item.syrup_extra_espresso_visible !== false,
       requiresRoastProfile: item.requires_roast_profile,
     });
   };
@@ -176,6 +191,11 @@ export default function MenuManager() {
         syrupChocolatePrice: Number(form.syrupChocolatePrice) || 0,
         syrupCaramelPrice: Number(form.syrupCaramelPrice) || 0,
         syrupExtraEspressoPrice: Number(form.syrupExtraEspressoPrice) || 0,
+        syrupVanillaVisible: Boolean(form.syrupVanillaVisible),
+        syrupHazelnutVisible: Boolean(form.syrupHazelnutVisible),
+        syrupChocolateVisible: Boolean(form.syrupChocolateVisible),
+        syrupCaramelVisible: Boolean(form.syrupCaramelVisible),
+        syrupExtraEspressoVisible: Boolean(form.syrupExtraEspressoVisible),
         requiresRoastProfile: form.requiresRoastProfile,
       };
 
@@ -581,10 +601,43 @@ export default function MenuManager() {
                     ["syrupExtraEspressoPrice", SYRUP_OPTIONS[4].label],
                   ] as const
                 ).map(([key, label]) => (
-                  <label key={key} className="flex flex-col gap-1.5">
-                    <span className="text-[10px] uppercase tracking-wider text-crema font-bold">
-                      {label} (₹)
-                    </span>
+                  <div key={key} className="flex flex-col gap-1.5">
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="text-[10px] uppercase tracking-wider text-crema font-bold">
+                        {label} (₹)
+                      </span>
+                      <label className="flex items-center gap-1.5 text-[10px] text-warm-beige cursor-pointer select-none">
+                        <input
+                          type="checkbox"
+                          checked={form[
+                            (key === "syrupVanillaPrice"
+                              ? "syrupVanillaVisible"
+                              : key === "syrupHazelnutPrice"
+                                ? "syrupHazelnutVisible"
+                                : key === "syrupChocolatePrice"
+                                  ? "syrupChocolateVisible"
+                                  : key === "syrupCaramelPrice"
+                                    ? "syrupCaramelVisible"
+                                    : "syrupExtraEspressoVisible") as keyof typeof form
+                          ] as boolean}
+                          onChange={(e) => {
+                            const visibleKey =
+                              key === "syrupVanillaPrice"
+                                ? "syrupVanillaVisible"
+                                : key === "syrupHazelnutPrice"
+                                  ? "syrupHazelnutVisible"
+                                  : key === "syrupChocolatePrice"
+                                    ? "syrupChocolateVisible"
+                                    : key === "syrupCaramelPrice"
+                                      ? "syrupCaramelVisible"
+                                      : "syrupExtraEspressoVisible";
+                            setForm({ ...form, [visibleKey]: e.target.checked });
+                          }}
+                          className="accent-crema"
+                        />
+                        Visible
+                      </label>
+                    </div>
                     <input
                       type="number"
                       min={0}
@@ -593,7 +646,7 @@ export default function MenuManager() {
                       onChange={(e) => setForm({ ...form, [key]: e.target.value })}
                       className="bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-cream-light focus:border-crema outline-none"
                     />
-                  </label>
+                  </div>
                 ))}
               </div>
             )}

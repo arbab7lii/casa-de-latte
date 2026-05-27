@@ -28,6 +28,11 @@ export function resolveSyrupPrices(
     | "syrupChocolatePrice"
     | "syrupCaramelPrice"
     | "syrupExtraEspressoPrice"
+    | "syrupVanillaVisible"
+    | "syrupHazelnutVisible"
+    | "syrupChocolateVisible"
+    | "syrupCaramelVisible"
+    | "syrupExtraEspressoVisible"
   >
 ) {
   if (!item.requiresSyrupOptions) return null;
@@ -42,6 +47,40 @@ export function resolveSyrupPrices(
   };
 }
 
+export function getVisibleSyrupOptions(
+  item: Pick<
+    MenuItem,
+    | "requiresSyrupOptions"
+    | "syrupVanillaPrice"
+    | "syrupHazelnutPrice"
+    | "syrupChocolatePrice"
+    | "syrupCaramelPrice"
+    | "syrupExtraEspressoPrice"
+    | "syrupVanillaVisible"
+    | "syrupHazelnutVisible"
+    | "syrupChocolateVisible"
+    | "syrupCaramelVisible"
+    | "syrupExtraEspressoVisible"
+  >
+) {
+  const prices = resolveSyrupPrices(item);
+  if (!prices) return [];
+
+  const visibleById: Record<SyrupOptionId, boolean> = {
+    vanilla: item.syrupVanillaVisible !== false,
+    hazelnut: item.syrupHazelnutVisible !== false,
+    chocolate: item.syrupChocolateVisible !== false,
+    caramel: item.syrupCaramelVisible !== false,
+    extraEspresso: item.syrupExtraEspressoVisible !== false,
+  };
+
+  return SYRUP_OPTIONS.filter((o) => visibleById[o.id]).map((o) => ({
+    id: o.id,
+    name: o.label,
+    surcharge: syrupPriceForId(o.id, prices),
+  }));
+}
+
 export function syrupPriceForId(
   id: SyrupOptionId,
   prices: Record<SyrupOptionId, number>
@@ -51,10 +90,11 @@ export function syrupPriceForId(
 
 export function syrupSurchargeTotal(
   selected: SyrupOptionLabel[],
-  prices: Record<SyrupOptionId, number> | null
+  prices: Record<SyrupOptionId, number> | null,
+  visibleOptions: readonly { id: SyrupOptionId; label: SyrupOptionLabel }[] = SYRUP_OPTIONS
 ): number {
   if (!prices || selected.length === 0) return 0;
-  return SYRUP_OPTIONS.filter((o) => selected.includes(o.label)).reduce(
+  return visibleOptions.filter((o) => selected.includes(o.label)).reduce(
     (sum, o) => sum + syrupPriceForId(o.id, prices),
     0
   );

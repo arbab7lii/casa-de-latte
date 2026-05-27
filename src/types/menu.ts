@@ -18,6 +18,11 @@ export interface MenuItem {
   syrupChocolatePrice?: number;
   syrupCaramelPrice?: number;
   syrupExtraEspressoPrice?: number;
+  syrupVanillaVisible?: boolean;
+  syrupHazelnutVisible?: boolean;
+  syrupChocolateVisible?: boolean;
+  syrupCaramelVisible?: boolean;
+  syrupExtraEspressoVisible?: boolean;
   requiresRoastProfile?: boolean;
   isAvailable?: boolean;
 }

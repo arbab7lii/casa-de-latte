@@ -22,7 +22,7 @@ export async function GET(request: Request) {
     }
 
     const syrupFields =
-      "requires_syrup_options,syrup_vanilla_price,syrup_hazelnut_price,syrup_chocolate_price,syrup_caramel_price,syrup_extra_espresso_price";
+      "requires_syrup_options,syrup_vanilla_price,syrup_hazelnut_price,syrup_chocolate_price,syrup_caramel_price,syrup_extra_espresso_price,syrup_vanilla_visible,syrup_hazelnut_visible,syrup_chocolate_visible,syrup_caramel_visible,syrup_extra_espresso_visible";
     const itemFieldsFull =
       `id,category_id,name,price,description,ingredients,is_hot_available,is_cold_available,requires_milk_customization,milk_whole_price,milk_almond_price,${syrupFields},requires_roast_profile,is_available,sort_order`;
     const itemFieldsNoSyrup =

@@ -35,6 +35,11 @@ export async function POST(request: Request) {
       syrupChocolatePrice = 25,
       syrupCaramelPrice = 25,
       syrupExtraEspressoPrice = 40,
+      syrupVanillaVisible = true,
+      syrupHazelnutVisible = true,
+      syrupChocolateVisible = true,
+      syrupCaramelVisible = true,
+      syrupExtraEspressoVisible = true,
       requiresRoastProfile = false,
       isAvailable = true,
       sortOrder = 0,
@@ -74,6 +79,11 @@ export async function POST(request: Request) {
       syrup_extra_espresso_price: Number.isFinite(Number(syrupExtraEspressoPrice))
         ? Number(syrupExtraEspressoPrice)
         : 40,
+      syrup_vanilla_visible: Boolean(syrupVanillaVisible),
+      syrup_hazelnut_visible: Boolean(syrupHazelnutVisible),
+      syrup_chocolate_visible: Boolean(syrupChocolateVisible),
+      syrup_caramel_visible: Boolean(syrupCaramelVisible),
+      syrup_extra_espresso_visible: Boolean(syrupExtraEspressoVisible),
       requires_roast_profile: Boolean(requiresRoastProfile),
       is_available: Boolean(isAvailable),
       sort_order: Number(sortOrder) || 0,
@@ -88,6 +98,11 @@ export async function POST(request: Request) {
         syrup_chocolate_price: _sc,
         syrup_caramel_price: _sca,
         syrup_extra_espresso_price: _se,
+        syrup_vanilla_visible: _svv,
+        syrup_hazelnut_visible: _shv,
+        syrup_chocolate_visible: _scv,
+        syrup_caramel_visible: _scav,
+        syrup_extra_espresso_visible: _sev,
         ...withoutSyrup
       } = row;
       ({ data, error } = await auth.supabase

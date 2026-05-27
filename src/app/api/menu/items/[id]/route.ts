@@ -37,6 +37,13 @@ export async function PATCH(
     if (body.syrupExtraEspressoPrice != null) {
       patch.syrup_extra_espresso_price = Number(body.syrupExtraEspressoPrice) || 0;
     }
+    if (body.syrupVanillaVisible != null) patch.syrup_vanilla_visible = Boolean(body.syrupVanillaVisible);
+    if (body.syrupHazelnutVisible != null) patch.syrup_hazelnut_visible = Boolean(body.syrupHazelnutVisible);
+    if (body.syrupChocolateVisible != null) patch.syrup_chocolate_visible = Boolean(body.syrupChocolateVisible);
+    if (body.syrupCaramelVisible != null) patch.syrup_caramel_visible = Boolean(body.syrupCaramelVisible);
+    if (body.syrupExtraEspressoVisible != null) {
+      patch.syrup_extra_espresso_visible = Boolean(body.syrupExtraEspressoVisible);
+    }
     if (body.requiresRoastProfile != null) {
       patch.requires_roast_profile = Boolean(body.requiresRoastProfile);
     }

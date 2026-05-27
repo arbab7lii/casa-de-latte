@@ -10,6 +10,58 @@ import {
 } from "@/lib/businessHours";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
+import { resolveMilkPrices, milkSurchargeForChoice, type MilkOptionLabel } from "@/lib/milkPricing";
+import { getVisibleSyrupOptions, resolveSyrupPrices, syrupSurchargeTotal, type SyrupOptionLabel } from "@/lib/syrupPricing";
+
+function parseCustomizationTokens(customizations: string): string[] {
+  return String(customizations || "")
+    .split(",")
+    .map((t) => t.trim())
+    .filter(Boolean);
+}
+
+function computeVisibleAddOnExtra(item: MenuItem, customizations: string): number {
+  const tokens = parseCustomizationTokens(customizations);
+
+  const milkChoice = tokens.find(
+    (t) => t === "Whole Milk" || t === "Almond Milk"
+  ) as MilkOptionLabel | undefined;
+  const milkExtra = milkSurchargeForChoice(milkChoice ?? null, resolveMilkPrices(item));
+
+  const syrupPrices = resolveSyrupPrices(item);
+  const visibleSyrupOptions = getVisibleSyrupOptions(item);
+  const selectedSyrups = tokens.filter((t) =>
+    visibleSyrupOptions.some((o) => o.name === t)
+  ) as SyrupOptionLabel[];
+  const syrupExtra = syrupSurchargeTotal(
+    selectedSyrups,
+    syrupPrices,
+    visibleSyrupOptions.map((o) => ({ id: o.id, label: o.name }))
+  );
+
+  return milkExtra + syrupExtra;
+}
+
+function sanitizeCustomizationsForVisibility(item: MenuItem, customizations: string): string {
+  const tokens = parseCustomizationTokens(customizations);
+  const visibleSyrupNames = new Set(getVisibleSyrupOptions(item).map((o) => o.name));
+
+  const kept = tokens.filter((t) => {
+    // Hide syrup labels that are not currently visible for this item.
+    if (
+      t === "Vanilla" ||
+      t === "Hazelnut" ||
+      t === "Chocolate" ||
+      t === "Caramel" ||
+      t === "Extra Espresso Shot"
+    ) {
+      return visibleSyrupNames.has(t as SyrupOptionLabel);
+    }
+    return true;
+  });
+
+  return kept.join(", ");
+}
 
 export interface CartItem {
   item: MenuItem;
@@ -44,10 +96,10 @@ export default function CartDrawer({
   const [carColor, setCarColor] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
-  const subtotal = cartItems.reduce(
-    (acc, curr) => acc + (curr.item.price + curr.extraPrice) * curr.quantity,
-    0
-  );
+  const subtotal = cartItems.reduce((acc, curr) => {
+    const visibleExtra = computeVisibleAddOnExtra(curr.item, curr.customizations);
+    return acc + (curr.item.price + visibleExtra) * curr.quantity;
+  }, 0);
   const taxes = Math.round(subtotal * 0.05);
   const grandTotal = subtotal + taxes;
 
@@ -106,9 +158,9 @@ export default function CartDrawer({
           paymentMode: "DEMO",
           items: cartItems.map((c) => ({
             name: c.item.name,
-            price: c.item.price + c.extraPrice,
+            price: c.item.price + computeVisibleAddOnExtra(c.item, c.customizations),
             quantity: c.quantity,
-            customizations: c.customizations,
+            customizations: sanitizeCustomizationsForVisibility(c.item, c.customizations),
             categoryId: c.item.category,
           })),
         }),
@@ -195,10 +247,14 @@ export default function CartDrawer({
                       <div className="flex-1">
                         <div className="flex justify-between items-start">
                           <h4 className="text-sm font-bold text-warm-beige leading-tight">{c.item.name}</h4>
-                          <span className="text-xs font-bold text-crema pl-2">₹{(c.item.price + c.extraPrice) * c.quantity}</span>
+                          <span className="text-xs font-bold text-crema pl-2">
+                            ₹{(c.item.price + computeVisibleAddOnExtra(c.item, c.customizations)) * c.quantity}
+                          </span>
                         </div>
                         {c.customizations && (
-                          <span className="text-[10px] text-crema-light/60 block mt-0.5">{c.customizations}</span>
+                          <span className="text-[10px] text-crema-light/60 block mt-0.5">
+                            {sanitizeCustomizationsForVisibility(c.item, c.customizations)}
+                          </span>
                         )}
                         <div className="flex items-center justify-between mt-2 pt-2 border-t border-white/5">
                           <div className="flex items-center bg-black/30 border border-white/10 rounded-lg px-1">

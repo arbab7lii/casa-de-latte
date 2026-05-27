@@ -12,9 +12,8 @@ import {
 } from "@/lib/milkPricing";
 import {
   formatSyrupSurcharge,
+  getVisibleSyrupOptions,
   resolveSyrupPrices,
-  SYRUP_OPTIONS,
-  syrupPriceForId,
   syrupSurchargeTotal,
   type SyrupOptionLabel,
 } from "@/lib/syrupPricing";
@@ -92,12 +91,9 @@ export default function ItemDetailModal({
   );
 
   const syrupOptions = useMemo(() => {
-    if (!syrupPrices) return [];
-    return SYRUP_OPTIONS.map((opt) => ({
-      name: opt.label,
-      surcharge: syrupPriceForId(opt.id, syrupPrices),
-    }));
-  }, [syrupPrices]);
+    if (!item) return [];
+    return getVisibleSyrupOptions(item);
+  }, [item]);
 
   const toggleSyrup = (label: SyrupOptionLabel) => {
     setSelectedSyrups((prev) =>
@@ -105,10 +101,25 @@ export default function ItemDetailModal({
     );
   };
 
+  // If admin hides a syrup while the modal is open, drop it from selection.
+  useEffect(() => {
+    if (!item) return;
+    if (syrupOptions.length === 0) {
+      setSelectedSyrups([]);
+      return;
+    }
+    const allowed = new Set(syrupOptions.map((s) => s.name));
+    setSelectedSyrups((prev) => prev.filter((s) => allowed.has(s)));
+  }, [item, syrupOptions]);
+
   if (!item) return null;
 
   const milkExtra = milkSurchargeForChoice(milk, milkPrices);
-  const syrupExtra = syrupSurchargeTotal(selectedSyrups, syrupPrices);
+  const syrupExtra = syrupSurchargeTotal(
+    selectedSyrups,
+    syrupPrices,
+    syrupOptions.map((o) => ({ id: o.id, label: o.name }))
+  );
   const extraPrice = milkExtra + syrupExtra;
   const unitPrice = item.price + extraPrice;
   const totalPrice = unitPrice * quantity;

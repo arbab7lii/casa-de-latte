@@ -119,6 +119,11 @@ function CustomerPortal() {
           i.syrup_extra_espresso_price != null
             ? Number(i.syrup_extra_espresso_price)
             : undefined,
+        syrupVanillaVisible: i.syrup_vanilla_visible,
+        syrupHazelnutVisible: i.syrup_hazelnut_visible,
+        syrupChocolateVisible: i.syrup_chocolate_visible,
+        syrupCaramelVisible: i.syrup_caramel_visible,
+        syrupExtraEspressoVisible: i.syrup_extra_espresso_visible,
         requiresRoastProfile: i.requires_roast_profile,
         isAvailable: i.is_available,
       }));
